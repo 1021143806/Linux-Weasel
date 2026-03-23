@@ -58,6 +58,12 @@ class OpenAICompatibleProvider : public LLMProvider {
   std::string m_model;
   int m_max_tokens;
   double m_temperature;
+  double m_top_p;
+  double m_presence_penalty;
+  double m_frequency_penalty;
+  bool m_has_seed;
+  int m_seed;
+  std::string m_extra_body_json;  // 额外透传 JSON（对象字符串）
   void* m_hSession;       // HINTERNET，复用的 WinHTTP 会话
   void* m_hConnect;       // HINTERNET，复用的连接
   std::string m_cached_url;  // 当前连接对应的 URL，变化时重建连接
