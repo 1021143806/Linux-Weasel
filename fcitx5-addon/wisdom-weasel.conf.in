@@ -1,0 +1,9 @@
+[Addon]
+Name=Wisdom-Weasel
+Category=InputMethod
+Version=@VERSION@
+Description=LLM-powered candidate prediction for Rime IME
+Dependencies=rime
+
+[InputMethod]
+DefaultEnabled=true
