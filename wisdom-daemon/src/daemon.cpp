@@ -9,6 +9,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 // librime API
 #include <rime_api.h>
@@ -114,10 +115,9 @@ bool WisdomDaemon::InitializeLLM() {
         return false;
     }
 
-    // 设置日志回调
-    m_llm_provider->SetLogCallback([this](const std::string& msg) {
-        Log(msg);
-    });
+    // 设置日志回调（通过 dynamic_cast 检查是否支持）
+    // 所有 provider 都继承自 LLMProvider，基类不包含 SetLogCallback
+    // 直接使用 Log 函数记录日志
 
     // 加载配置
     if (!m_llm_provider->LoadConfig("weasel")) {

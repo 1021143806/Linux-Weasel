@@ -40,11 +40,17 @@ private:
     // IPC 处理
     void IPCEventLoop();
 
-    // 触发 LLM 预测
+public:
+    // 触发 LLM 预测（公开，供回调使用）
     void TriggerPrediction(const std::wstring& context, const std::wstring& current_input);
 
-    // 日志
+    // 获取上下文历史（公开，供回调使用）
+    ContextHistory* GetContextHistory() { return m_context_history.get(); }
+
+    // 日志（公开，供回调使用）
     void Log(const std::string& msg);
+
+private:
 
     // 组件
     std::unique_ptr<LLMProvider> m_llm_provider;

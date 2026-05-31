@@ -49,6 +49,12 @@ if(BUILD_FCITX5_PLUGIN AND NOT BUILD_CORE_ONLY)
         fcitx5-addon/src/wisdom-weasel.cpp
     )
 
+    # fcitx5 5.1.17 需要 C++20
+    set_target_properties(wisdom-plugin PROPERTIES
+        CXX_STANDARD 20
+        CXX_STANDARD_REQUIRED ON
+    )
+
     target_include_directories(wisdom-plugin
         PRIVATE
             ${FCITX5_INCLUDE_DIRS}

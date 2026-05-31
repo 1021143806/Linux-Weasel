@@ -1,20 +1,14 @@
 // Wisdom-Weasel fcitx5 插件
-// 通过 Unix Domain Socket 与守护进程通信，获取 LLM 候选词并注入到候选窗
+// 通过 Unix Domain Socket 与守护进程通信，获取 LLM 候选词
 
 #include <fcitx/addonfactory.h>
 #include <fcitx/addoninstance.h>
+#include <fcitx/addonmanager.h>
 #include <fcitx/instance.h>
-#include <fcitx/candidatelist.h>
-#include <fcitx/inputcontext.h>
-#include <fcitx/inputcontextmanager.h>
-#include <fcitx/inputmethodentry.h>
-#include <fcitx/event.h>
 
 #include <string>
 #include <vector>
-#include <thread>
 #include <mutex>
-#include <atomic>
 #include <cstring>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -24,7 +18,6 @@ using namespace fcitx;
 
 namespace {
 
-// 通过 Unix Domain Socket 向守护进程发送请求
 std::string SendRequest(const std::string& socket_path, const std::string& request) {
     int sock = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sock < 0) return "";
@@ -58,36 +51,20 @@ public:
     WisdomWeasel(Instance* instance)
         : m_instance(instance),
           m_socket_path("/tmp/wisdom-weasel.sock") {
-
-        // 监听输入上下文事件
-        instance->inputContextManager().registerWatcher(
-            [this](EventType type, InputContext& ic) {
-                if (type == EventType::InputContextFocusIn) {
-                    // 焦点进入时，可以触发上下文更新
-                } else if (type == EventType::InputContextFocusOut) {
-                    // 焦点离开时，清空候选词
-                    ClearCandidates();
-                }
-            });
-
-        FCITX_INFO() << "Wisdom-Weasel plugin loaded";
     }
 
     ~WisdomWeasel() override = default;
 
-    // 获取 LLM 候选词列表
     std::vector<std::string> GetLLMCandidates() {
         std::lock_guard<std::mutex> lock(m_mutex);
         return m_candidates;
     }
 
-    // 清空 LLM 候选词
     void ClearCandidates() {
         std::lock_guard<std::mutex> lock(m_mutex);
         m_candidates.clear();
     }
 
-    // 从守护进程获取候选词
     void FetchCandidates() {
         std::string response = SendRequest(m_socket_path, "GET_CANDIDATES");
         if (response.empty()) {
@@ -113,13 +90,11 @@ public:
         }
     }
 
-    // 触发 LLM 预测
     void TriggerPrediction(const std::string& context, const std::string& input) {
         std::string request = "TRIGGER_PREDICTION:" + context + ":" + input;
         SendRequest(m_socket_path, request);
     }
 
-    // 清空上下文
     void ClearContext() {
         SendRequest(m_socket_path, "CLEAR_CONTEXT");
     }
@@ -131,5 +106,13 @@ private:
     std::mutex m_mutex;
 };
 
-// 注册插件
-FCITX_ADDON_FACTORY(WisdomWeasel, addon::AddonPriority::Default);
+// 注册插件（fcitx5 5.1.17 版本只接受一个参数）
+class WisdomWeaselFactory : public AddonFactory {
+public:
+    AddonInstance* create(AddonManager* manager) override {
+        auto* instance = manager->instance();
+        return new WisdomWeasel(instance);
+    }
+};
+
+FCITX_ADDON_FACTORY(WisdomWeaselFactory);
