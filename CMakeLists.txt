@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(wisdom-weasel-linux VERSION 1.0.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 选项
@@ -47,12 +47,6 @@ if(BUILD_FCITX5_PLUGIN AND NOT BUILD_CORE_ONLY)
 
     add_library(wisdom-plugin MODULE
         fcitx5-addon/src/wisdom-weasel.cpp
-    )
-
-    # fcitx5 5.1.17 需要 C++20
-    set_target_properties(wisdom-plugin PROPERTIES
-        CXX_STANDARD 20
-        CXX_STANDARD_REQUIRED ON
     )
 
     target_include_directories(wisdom-plugin

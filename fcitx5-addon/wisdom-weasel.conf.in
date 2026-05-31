@@ -1,9 +1,11 @@
 [Addon]
 Name=Wisdom-Weasel
-Category=InputMethod
+Name[zh_CN]=智慧鼬
+Comment=LLM-powered candidate prediction for Rime IME
+Comment[zh_CN]=基于大语言模型的智能候选词预测
+Category=Module
 Version=@VERSION@
-Description=LLM-powered candidate prediction for Rime IME
-Dependencies=rime
-
-[InputMethod]
-DefaultEnabled=true
+Library=libwisdom-plugin
+Type=SharedLibrary
+OnDemand=False
+Configurable=False

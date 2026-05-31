@@ -4,7 +4,6 @@
 #include <fcitx/addonfactory.h>
 #include <fcitx/addoninstance.h>
 #include <fcitx/addonmanager.h>
-#include <fcitx/instance.h>
 
 #include <string>
 #include <vector>
@@ -48,9 +47,8 @@ std::string SendRequest(const std::string& socket_path, const std::string& reque
 
 class WisdomWeasel final : public AddonInstance {
 public:
-    WisdomWeasel(Instance* instance)
-        : m_instance(instance),
-          m_socket_path("/tmp/wisdom-weasel.sock") {
+    WisdomWeasel()
+        : m_socket_path("/tmp/wisdom-weasel.sock") {
     }
 
     ~WisdomWeasel() override = default;
@@ -100,18 +98,16 @@ public:
     }
 
 private:
-    Instance* m_instance;
     std::string m_socket_path;
     std::vector<std::string> m_candidates;
     std::mutex m_mutex;
 };
 
-// 注册插件（fcitx5 5.1.17 版本只接受一个参数）
+// 注册插件
 class WisdomWeaselFactory : public AddonFactory {
 public:
-    AddonInstance* create(AddonManager* manager) override {
-        auto* instance = manager->instance();
-        return new WisdomWeasel(instance);
+    AddonInstance* create(AddonManager*) override {
+        return new WisdomWeasel();
     }
 };
 
